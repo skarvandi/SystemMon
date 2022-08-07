@@ -1,0 +1,62 @@
+#pragma once
+
+typedef enum _OPERATION_TYPE
+{
+    OPERATION_WRITE_FILE,
+    OPERATION_DELETE_FILE_SET_INFORMATION,
+    OPERATION_DELETE_FILE_ON_CLOSE,
+
+} OPERATION_TYPE;
+
+//
+// IOCTLs
+//
+#define IOCTL_REQUEST_PROCESS_ID_WHITELIST 0x00000001
+#define IOCTL_REGISTER_EXTENSIONS          0x00000002
+#define IOCTL_SET_PRIMARY_DRIVE            0x00000003
+
+//
+// Kernel Status
+//
+#define KERNEL_STATUS_SUCCESSFUL 0x00000000
+
+#define KERNEL_STATUS_INVALID_IOCTL               0xc0000001
+#define KERNEL_STATUS_PROCESS_NOT_FOUND           0xc0000002
+#define KERNEL_STATUS_PRIMARY_DISK_ALREADY_EXISTS 0xc0000003
+
+typedef struct ANTI_RANSOMWARE_PORT_MESSAGE
+{
+    BOOLEAN        ShouldBeSuspended;
+    BOOLEAN        ImmediateActions;
+    HANDLE         ProcessId;
+    OPERATION_TYPE OperationType;
+    USHORT         FileNameLength;
+    WCHAR          FileName[1];
+    //
+    // Don't add anything at the button of this structure
+    //
+} ANTI_RANSOMWARE_PORT_MESSAGE, *PANTI_RANSOMWARE_PORT_MESSAGE;
+
+typedef struct _ANTI_RANSOMWARE_PROCESS_TRACE
+{
+    HANDLE  ProcessId;
+    BOOLEAN IsOnTheWhiteList;
+
+} ANTI_RANSOMWARE_PROCESS_TRACE, *PANTI_RANSOMWARE_PROCESS_TRACE;
+
+typedef struct _ANTI_RANSOMWARE_FLT_IOCTL_REQUEST
+{
+    UINT32 IoctlRequest;
+    UINT32 KernelStatus;
+
+    UINT64 OptionalParam1;
+    UINT64 OptionalParam2;
+    UINT64 OptionalParam3;
+    UINT64 OptionalParam4;
+
+} ANTI_RANSOMWARE_FLT_IOCTL_REQUEST, *PANTI_RANSOMWARE_FLT_IOCTL_REQUEST;
+
+#define MAXIMUM_EXTENSIONS               1000
+#define MAXIMUM_LENGTH_OF_EACH_EXTENSION 20
+#define SIZE_OF_EXTENSION_BUFFER         MAXIMUM_EXTENSIONS * MAXIMUM_LENGTH_OF_EACH_EXTENSION * 2
+#define SystemMonProtectedFolder        L"protected-bkup\\"
